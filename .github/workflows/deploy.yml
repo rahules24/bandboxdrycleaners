@@ -26,4 +26,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.ECHOECHO }}
-          publish_dir: build
+          publish_dir: ./dist
