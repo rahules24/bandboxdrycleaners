@@ -47,18 +47,52 @@ export default function NewBill() {
   const [phoneError, setPhoneError] = useState('');
 
 
-    const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic 10-digit phone number regex
     const phoneRegex = /^[0-9]{10}$/;
-
     if (!phoneRegex.test(phone)) {
       setPhoneError('Please enter a valid 10-digit phone number.');
       return;
     }
 
-    setPhoneError('');
+    const payload = {
+      slip_no: slip,
+      date: today,
+      due_date: today, // Replace if user picks due date
+      address: '', // Get from form
+      phone: phone,
+      items: items.map(item => ({
+        item_name: item.itemName,
+        service: item.service,
+        quantity: parseInt(item.quantity),
+        price_per_unit: item.selectedPrice ?? item.price,
+      }))
+    };
+
+    try {
+      const response = await fetch("https://bandboxbackend.fly.dev/api/bills/create/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Bill submitted!");
+        // Reset form if needed
+      } else {
+        console.error("Error:", data);
+        alert("Submission failed!");
+      }
+
+    } catch (err) {
+      console.error("Network error:", err);
+      alert("Error connecting to server.");
+    }
   };
 
   const getISTDate = () => {
@@ -237,7 +271,7 @@ export default function NewBill() {
 
             {/* Headers */}
             <Row className="mb-2 fw-bold">
-              <Col xs={1}>Quantity</Col>
+              <Col xs={1}>Qty.</Col>
               <Col xs={3}>Particulars</Col>
               <Col xs={3}>Service</Col>
               <Col xs={2}>Unit Price</Col>
