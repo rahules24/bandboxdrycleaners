@@ -2,6 +2,8 @@ import { useState } from 'react';
 import SirenScripts from './SirenScripts';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import field from '../assets/img/home.jpg';
+import { debounce } from 'lodash';
+
 
 type Item = {
   name: string;
@@ -94,6 +96,10 @@ export default function NewBill() {
       alert("Error connecting to server.");
     }
   };
+
+  const debouncedSubmit = debounce((e: React.FormEvent) => {
+    handleSubmit(e);
+  }, 1000);
 
   const getISTDate = () => {
     const now = new Date();
@@ -207,7 +213,7 @@ export default function NewBill() {
       <SirenScripts />
       <div style={{ paddingRight: '10px' }}>
         <Container style={{ paddingTop: '90px' }}>
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={debouncedSubmit}>
             {/* Date */}
             <Row className="mb-3">
               <Col md={1}>
