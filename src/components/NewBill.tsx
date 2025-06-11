@@ -44,10 +44,19 @@ export default function NewBill() {
     { itemName: '', service: 'Drycleaning', price: 0, quantity: '1', customPrice: '' },
   ]);
 
+  const getISTDate = () => {
+    const now = new Date();
+    const offset = 5.5 * 60;
+    const istDate = new Date(now.getTime() + offset * 60000);
+    return istDate.toISOString().split('T')[0];
+  };
+  const today = getISTDate();
+
   const [slip, setSlip] = useState('001');
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
-
+  const [address, setAddress] = useState('');
+  const [dueDate, setDueDate] = useState(today);
 
   const handleSubmit = async () => {
     const phoneRegex = /^[0-9]{10}$/;
@@ -56,13 +65,19 @@ export default function NewBill() {
       return;
     }
 
+    const validItems = items.filter(item => item.itemName && item.service);
+    if (validItems.length === 0) {
+      alert("Please add at least one valid item.");
+      return;
+    }
+
     const payload = {
       slip_no: slip,
       date: today,
-      due_date: today, // Replace if user picks due date
-      address: '', // Get from form
-      phone: phone,
-      items: items.map(item => ({
+      due_date: dueDate,
+      address,
+      phone,
+      items: validItems.map(item => ({
         item_name: item.itemName,
         service: item.service,
         quantity: parseInt(item.quantity),
@@ -83,7 +98,7 @@ export default function NewBill() {
 
       if (response.ok) {
         alert("Bill submitted!");
-        // Optionally reset form
+        // You can reset form if needed here
       } else {
         console.error("Error:", data);
         alert("Submission failed!");
@@ -94,19 +109,9 @@ export default function NewBill() {
       alert("Error connecting to server.");
     }
   };
-
   const debouncedSubmit = debounce(() => {
     handleSubmit();
   }, 1000);
-
-  const getISTDate = () => {
-    const now = new Date();
-    const offset = 5.5 * 60;
-    const istDate = new Date(now.getTime() + offset * 60000);
-    return istDate.toISOString().split('T')[0];
-  };
-
-  const today = getISTDate();
 
   const getServicesForItem = (itemName: string): string[] => {
     const item = ITEMS.find(i => i.name === itemName);
@@ -236,7 +241,13 @@ export default function NewBill() {
               <Col md={3}>
                 <Form.Group controlId="dueDate">
                   <Form.Label>Due Date</Form.Label>
-                  <Form.Control type="date" min={today} className="transparent-input"/>
+                  <Form.Control
+                    type="date"
+                    min={today}
+                    value={dueDate} // 🆕 bind to state
+                    onChange={(e) => setDueDate(e.target.value)} // 🆕 update on change
+                    className="transparent-input"
+                  />
                 </Form.Group>
               </Col>
               {/* <Col md={5}>
@@ -249,7 +260,12 @@ export default function NewBill() {
               <Col md={4}>
                 <Form.Group controlId="address">
                   <Form.Label>Address</Form.Label>
-                  <Form.Control type="text" className="transparent-input"/>
+                  <Form.Control
+                    type="text"
+                    className="transparent-input"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
                 </Form.Group>
               </Col>
               <Col md={3}>
