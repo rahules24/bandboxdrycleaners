@@ -108,6 +108,7 @@ export default function NewBill() {
       console.error("Network error:", err);
       alert("Error connecting to server.");
     }
+    console.log(payload)
   };
   const debouncedSubmit = debounce(() => {
     handleSubmit();
