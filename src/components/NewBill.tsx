@@ -49,9 +49,7 @@ export default function NewBill() {
   const [phoneError, setPhoneError] = useState('');
 
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(phone)) {
       setPhoneError('Please enter a valid 10-digit phone number.');
@@ -85,7 +83,7 @@ export default function NewBill() {
 
       if (response.ok) {
         alert("Bill submitted!");
-        // Reset form if needed
+        // Optionally reset form
       } else {
         console.error("Error:", data);
         alert("Submission failed!");
@@ -97,8 +95,8 @@ export default function NewBill() {
     }
   };
 
-  const debouncedSubmit = debounce((e: React.FormEvent) => {
-    handleSubmit(e);
+  const debouncedSubmit = debounce(() => {
+    handleSubmit();
   }, 1000);
 
   const getISTDate = () => {
@@ -213,7 +211,7 @@ export default function NewBill() {
       <SirenScripts />
       <div style={{ paddingRight: '10px' }}>
         <Container style={{ paddingTop: '90px' }}>
-          <Form onSubmit={debouncedSubmit}>
+          <Form onSubmit={e => { e.preventDefault(); debouncedSubmit(); }}>
             {/* Date */}
             <Row className="mb-3">
               <Col md={1}>
