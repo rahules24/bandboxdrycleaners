@@ -58,57 +58,74 @@ export default function NewBill() {
   const [address, setAddress] = useState('');
   const [dueDate, setDueDate] = useState(today);
 
-  const handleSubmit = async () => {
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phone)) {
-      setPhoneError('Please enter a valid 10-digit phone number.');
-      return;
-    }
+const handleSubmit = async () => {
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(phone)) {
+    setPhoneError('Please enter a valid 10-digit phone number.');
+    return;
+  }
 
-    const validItems = items.filter(item => item.itemName && item.service);
-    if (validItems.length === 0) {
-      alert("Please add at least one valid item.");
-      return;
-    }
+  const validItems = items.filter(item => item.itemName && item.service);
+  if (validItems.length === 0) {
+    alert("Please add at least one valid item.");
+    return;
+  }
 
-    const payload = {
-      slip_no: slip,
-      date: today,
-      due_date: dueDate,
-      address,
-      phone,
-      items: validItems.map(item => ({
+  const payload = {
+    slip_no: slip,
+    date: today,
+    due_date: dueDate,
+    address,
+    phone,
+    items: validItems.map(item => {
+      let finalPrice;
+      
+      // Calculate the correct price based on item type and service
+      if (item.service === 'Rafu') {
+        // For Rafu, use the custom price from the input field
+        finalPrice = parseFloat(item.customPrice || '0') || 0;
+      } else if (item.itemName === 'Gown') {
+        // For Gown, use the selected price from the slider
+        finalPrice = item.selectedPrice || 0;
+      } else {
+        // For other items, use the standard price
+        finalPrice = item.price;
+      }
+
+      return {
         item_name: item.itemName,
         service: item.service,
         quantity: parseInt(item.quantity),
-        price_per_unit: item.selectedPrice ?? item.price,
-      }))
-    };
+        price_per_unit: finalPrice,
+      };
+    })
+  };
 
-    try {
-      const response = await fetch("https://bandboxbackend.fly.dev/api/bills/create/", {
+  try{
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${apiUrl}/api/bills/create/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload)
-      });
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload)
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok) {
-        alert("Bill submitted!");
-        // You can reset form if needed here
-      } else {
-        console.error("Error:", data);
-        alert("Submission failed!");
-      }
-
-    } catch (err) {
-      console.error("Network error:", err);
-      alert("Error connecting to server.");
+    if (response.ok) {
+      alert("Bill submitted!");
+      // You can reset form if needed here
+    } else {
+      console.error("Error:", data);
+      alert("Submission failed!");
     }
-    console.log(payload)
+
+  } catch (err) {
+    console.error("Network error:", err);
+    alert("Error connecting to server.");
+  }
+    console.log(JSON.stringify(payload, null, 2))
   };
   const debouncedSubmit = debounce(() => {
     handleSubmit();
