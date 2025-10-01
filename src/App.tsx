@@ -8,22 +8,22 @@ import Track from './components/Track';
 import Contact from './components/Contact';
 
 import {
+  HashRouter as Router,
   Routes,
   Route
 } from "react-router-dom";
 
 function App() {
   return (
-    <>
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/newbill" element={<NewBill />} />
-      <Route path="/track" element={<Track />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/about" element={<About />} />
-    </Routes>
-    </>
-
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/newbill" element={<NewBill />} />
+        <Route path="/track" element={<Track />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </Router>
   );
 }
 
