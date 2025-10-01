@@ -64,7 +64,7 @@ const Contact: React.FC = () => {
         setButtonText('Sending...');
 
         try {
-            const response = await fetch('https://crypts.vercel.app/api/contact', {
+            const response = await fetch('http://127.0.0.1:8000/api/contact/submit/', {
             method: 'POST',
             body: JSON.stringify(formData),
             headers: {
