@@ -26,8 +26,8 @@ const PRICE_MAP: { [key: string]: number } = {
   'Pants-Drycleaning': 80,
   'Pants-Steam Press': 50,
   'Blanket-Drycleaning': 120,
-  'Gown-Drycleaning': 0, // ✅ Handled by slider
-  'Gown-Steam Press': 0, // ✅ Handled by slider
+  'Gown-Drycleaning': 400, // ✅ Handled by slider
+  'Gown-Steam Press': 200, // ✅ Handled by slider
 };
 
 type SelectedItem = {
@@ -83,10 +83,10 @@ const handleSubmit = async () => {
       // Calculate the correct price based on item type and service
       if (item.service === 'Rafu') {
         // For Rafu, use the custom price from the input field
-        finalPrice = parseFloat(item.customPrice || '0') || 0;
+        finalPrice = parseFloat(item.customPrice || '50') || 50;
       } else if (item.itemName === 'Gown') {
         // For Gown, use the selected price from the slider
-        finalPrice = item.selectedPrice || 0;
+        finalPrice = item.selectedPrice || 500;
       } else {
         // For other items, use the standard price
         finalPrice = item.price;
@@ -98,7 +98,8 @@ const handleSubmit = async () => {
         quantity: parseInt(item.quantity),
         price_per_unit: finalPrice,
       };
-    })
+    }),
+    amount: totalPrice
   };
 
   try{
@@ -146,8 +147,8 @@ const handleSubmit = async () => {
   };
 
   const getPrice = (itemName: string, service: string): number => {
-    if (service === 'Rafu') return 0;
-    if (itemName === 'Gown') return 0;
+    if (service === 'Rafu') return 50;
+    if (itemName === 'Gown') return 400;
     return PRICE_MAP[`${itemName}-${service}`] || 0;
   };
 
@@ -216,7 +217,7 @@ const handleSubmit = async () => {
     const qty = parseInt(curr.quantity) || 0;
     let priceNum = curr.price;
     if (curr.service === 'Rafu' || curr.itemName === 'Gown') {
-      priceNum = parseFloat(curr.customPrice || '0') || 0;
+      priceNum = parseFloat(curr.customPrice || '50') || 50;
     }
     return acc + priceNum * qty;
   }, 0);
@@ -320,7 +321,7 @@ const handleSubmit = async () => {
               const services = getServicesForItem(item.itemName);
               const qty = parseInt(item.quantity) || 0;
               const isCustomPrice = item.service === 'Rafu' || item.itemName === 'Gown';
-              let pricePerItem = isCustomPrice ? parseFloat(item.customPrice || '0') || 0 : item.price;
+              let pricePerItem = isCustomPrice ? parseFloat(item.customPrice || '50') || 50 : item.price;
 
               const sliderMin = item.service === 'Steam Press' ? 200 : 500;
               const sliderMax = item.service === 'Steam Press' ? 500 : 1000;
