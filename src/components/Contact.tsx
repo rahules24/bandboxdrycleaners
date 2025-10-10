@@ -64,7 +64,8 @@ const Contact: React.FC = () => {
         setButtonText('Sending...');
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/contact/submit/', {
+            const apiUrl = import.meta.env.VITE_API_URL;
+            const response = await fetch(`${apiUrl}/api/contact/submit/`, {
             method: 'POST',
             body: JSON.stringify(formData),
             headers: {
